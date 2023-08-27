@@ -1,11 +1,10 @@
 from collections import defaultdict
 import itertools
+from typing import List
 
 import numpy as np
 import pandas as pd
 from tqdm import notebook
-
-from typing import List
 
 
 def format_formula_as_str(formula):        
