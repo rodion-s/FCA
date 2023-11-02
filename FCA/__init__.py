@@ -1,1 +1,1 @@
-from .fca_impl import BinaryFCAClassifier, MultiLabelFCAClassifier, format_formula_as_str
+from .fca_impl import BinaryFCAClassifier, format_formula_as_str

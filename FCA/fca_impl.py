@@ -21,7 +21,7 @@ class BinaryFCAClassifier():
 
     def __init__(self,
         max_formula_len: int = 20,
-        beta: float = 1,
+        beta: float = 5,
         wrecl: float = 2,
         waddprec: float = 10,
         waddrecl: float = 5,
@@ -45,7 +45,7 @@ class BinaryFCAClassifier():
 
         self.fitted = False
         self.max_formula_len = max_formula_len
-        self.beta = 1
+        self.beta = beta
         self.wrecl = wrecl
         self.waddprec = waddprec
         self.waddrecl = waddrecl
@@ -308,14 +308,17 @@ class BinaryFCAClassifier():
         return conj_candidates_df
 
 
-    def eval_prec_recl(self, formula, y):
+    def eval_prec_recl(self, formula, y, inverse_idx=None, calc_errors=False):
+        
+        if inverse_idx is None:
+            inverse_idx = self._inverse_idx
 
         n_docs = y.shape[0] 
         docs_with_topic = set(np.where(y == 1)[0])
 
         all_indices = set(range(n_docs))
 
-        docs_with_formula = self.get_docs_by_formula(formula, inverse_idx=self._inverse_idx)
+        docs_with_formula = self.get_docs_by_formula(formula, inverse_idx=inverse_idx)
 
 
         a = len(docs_with_formula.intersection(docs_with_topic))
@@ -337,10 +340,16 @@ class BinaryFCAClassifier():
         result['prec'] = prec
         result['recl'] = recl
 
-        docs_without_topic = all_indices - docs_with_topic
-        false_positive_docs = docs_with_formula.intersection(docs_without_topic)
-        false_negative_docs = docs_without_formula.intersection(docs_with_topic)
 
+        docs_without_topic = all_indices - docs_with_topic
+
+        if calc_errors:
+            false_positive_docs = docs_with_formula.intersection(docs_without_topic)
+            false_negative_docs = docs_without_formula.intersection(docs_with_topic)
+            
+            result['false_positive_docs'] = false_positive_docs
+            result['false_negative_docs'] = false_negative_docs
+            
         result['predictions'] = list(docs_with_formula)
         return result
 
